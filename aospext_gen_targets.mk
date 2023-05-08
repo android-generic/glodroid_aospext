@@ -39,7 +39,7 @@ define unwrap_target
 __TYPE := $(word 1,$1)
 __PATHNAME = $(word 2,$1)
 __SUBDIR := $(word 3,$1)
-__PATH_OVERRIDE := $(if $(filter libetc,$(word 1,$1)),$(PRODUCT_OUT)/$(__TMP_DIR_libetc))
+__PATH_OVERRIDE := $(if $(filter libetc,$(word 1,$1)),$(PRODUCT_OUT)/system/$(__TMP_DIR_libetc))
 __MODULE := $(word 4,$1)
 __SYMLINK_SUFFIX := $(word 5,$1)
 __SKIP := $(if $(filter lib first,$(__TMP_MULTILIB) $(word 1,$1)),,true)

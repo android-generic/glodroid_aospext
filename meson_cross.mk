@@ -90,7 +90,7 @@ ifneq ($(MESON_GEN_LLVM_STUB),)
 	mkdir -p $(MESON_OUT_SRC_DIR)/subprojects/llvm/
 	echo -e "project('llvm', 'cpp', version : '$(MESON_LLVM_VERSION)')\n" \
 		"dep_llvm = declare_dependency()\n"                           \
-		"has_rtti = false\n" > $(dir $@)/subprojects/llvm/meson.build
+		"has_rtti = false\n" > $(MESON_OUT_SRC_DIR)/subprojects/llvm/meson.build
 endif
 	# Build meson project
 	export $$(cat /etc/environment):$(RUST_BIN_DIR_ABS) && make -C $(dir $(MESON_GEN_DIR)) install

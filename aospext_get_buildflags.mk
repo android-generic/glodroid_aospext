@@ -177,7 +177,7 @@ define m-c-flags
 endef
 
 define filter-c-flags
-  $(filter-out -fno-rtti,
+  $(filter-out -fno-rtti -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang,
     $(patsubst -std=%,, \
       $(patsubst -f%,, \
         $(patsubst  -W%,, $1))))

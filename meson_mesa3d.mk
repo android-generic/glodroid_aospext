@@ -32,6 +32,8 @@ MESON_BUILD_ARGUMENTS := \
     -Degl=enabled                                                                \
     -Dcpp_rtti=false                                                             \
     -Dlmsensors=disabled                                                         \
+	-Dgallium-va=$(BOARD_MESA3D_GALLIUM_VA)					    				 \
+	-Dvideo-codecs=$(subst $(space),$(comma),$(BOARD_MESA3D_GALLIUM_VA_CODECS))	 \
     $(BOARD_MESA3D_EXTRA_MESON_ARGS)
 
 ifeq ($(shell test $(PLATFORM_SDK_VERSION) -ge 30; echo $$?), 0)
@@ -52,6 +54,10 @@ AOSPEXT_GEN_TARGETS := \
 
 ifneq ($(filter true, $(BOARD_MESA3D_BUILD_LIBGBM)),)
 AOSPEXT_GEN_TARGETS += lib:$(MESA_LIBGBM_NAME).so::$(MESA_LIBGBM_NAME):
+endif
+
+ifneq ($(BOARD_MESA3D_GALLIUM_VA),)
+AOSPEXT_GEN_TARGETS += lib:libgallium_drv_video.so:dri:libgallium_drv_video:
 endif
 
 AOSPEXT_GEN_TARGETS += \
@@ -109,6 +115,11 @@ MESON_LLVM_VERSION := 12.0.0
 LOCAL_SHARED_LIBRARIES += libLLVM12
 endif
 
+ifneq ($(BOARD_MESA3D_GALLIUM_VA),)
+LOCAL_SHARED_LIBRARIES += libva libva-android
+MESON_GEN_PKGCONFIGS += libva:1.18.0
+endif
+
 ifeq ($(shell test $(PLATFORM_SDK_VERSION) -ge 30; echo $$?), 0)
 LOCAL_SHARED_LIBRARIES += \
     android.hardware.graphics.mapper@4.0 \
@@ -130,11 +141,24 @@ $(SYMLINKS_TARGET): MESA3D_LIB_INSTALL_DIR:=$(dir $(MESON_GEN_FILES_TARGET))/ins
 $(SYMLINKS_TARGET): $(MESON_GEN_FILES_TARGET)
 	# Create Symlinks
 	mkdir -p $$(dir $$@)
-	ls -1 $$(MESA3D_LIB_INSTALL_DIR)/dri/ | PATH=/usr/bin:$$PATH xargs -I{} ln -s -f libgallium_dri.so $$(dir $$@)/{}
-	cp `ls -1 $$(MESA3D_LIB_INSTALL_DIR)/dri/* | head -1` $$(MESA3D_LIB_INSTALL_DIR)/libgallium_dri.so
+	find $$(MESA3D_LIB_INSTALL_DIR)/dri -name \*_dri.so -printf '%f\n' | PATH=/usr/bin:$$PATH xargs -I{} ln -s -f libgallium_dri.so $$(dir $$@)/{}
+	cp `find $$(MESA3D_LIB_INSTALL_DIR)/dri -name \*_dri.so | head -1` $$(MESA3D_LIB_INSTALL_DIR)/libgallium_dri.so
 	touch $$@
 endef
 
+define populate_drv_video_symlinks
+# -------------------------------------------------------------------------------
+# This function is the same as populate_dri_symlinks, but made for Mesa's VA-API 
+# drivers instead of Gallium dri drivers
+
+$(SYMLINKS_TARGET_VIDEO): MESA3D_LIB_INSTALL_DIR:=$(dir $(MESON_GEN_FILES_TARGET))/install/vendor/lib$(if $(TARGET_IS_64_BIT),$(if $(filter 64 first,$(LOCAL_MULTILIB)),64))
+$(SYMLINKS_TARGET_VIDEO): $(MESON_GEN_FILES_TARGET)
+	# Create Symlinks
+	mkdir -p $$(dir $$@)
+	find $$(MESA3D_LIB_INSTALL_DIR)/dri -name \*_drv_video.so -printf '%f\n' | PATH=/usr/bin:$$PATH xargs -I{} ln -s -f libgallium_drv_video.so $$(dir $$@)/{}
+	cp `find $$(MESA3D_LIB_INSTALL_DIR)/dri -name \*_drv_video.so | head -1` $$(MESA3D_LIB_INSTALL_DIR)/libgallium_drv_video.so
+	touch $$@
+endef
 
 #-------------------------------------------------------------------------------
 
@@ -142,7 +166,9 @@ LOCAL_MULTILIB := first
 include $(LOCAL_PATH)/meson_cross.mk
 SYMLINKS_TARGET:=$($(AOSPEXT_ARCH_PREFIX)TARGET_OUT_VENDOR_SHARED_LIBRARIES)/dri/.symlinks.timestamp
 $(eval $(call populate_dri_symlinks))
-FIRSTARCH_SYMLINKS_TARGET:=$(SYMLINKS_TARGET)
+SYMLINKS_TARGET_VIDEO:=$($(AOSPEXT_ARCH_PREFIX)TARGET_OUT_VENDOR_SHARED_LIBRARIES)/dri/.symlinks.drv_video.timestamp
+$(eval $(call populate_drv_video_symlinks))
+FIRSTARCH_SYMLINKS_TARGET:=$(SYMLINKS_TARGET) $(SYMLINKS_TARGET_VIDEO)
 FIRSTARCH_INSTALL_DIR:=$(dir $(MESON_GEN_FILES_TARGET))/install
 
 ifdef TARGET_2ND_ARCH
@@ -150,7 +176,9 @@ LOCAL_MULTILIB := 32
 include $(LOCAL_PATH)/meson_cross.mk
 SYMLINKS_TARGET:=$($(AOSPEXT_ARCH_PREFIX)TARGET_OUT_VENDOR_SHARED_LIBRARIES)/dri/.symlinks.timestamp
 $(eval $(call populate_dri_symlinks))
-SECONDARCH_SYMLINKS_TARGET:=$(SYMLINKS_TARGET)
+SYMLINKS_TARGET_VIDEO:=$($(AOSPEXT_ARCH_PREFIX)TARGET_OUT_VENDOR_SHARED_LIBRARIES)/dri/.symlinks.drv_video.timestamp
+$(eval $(call populate_drv_video_symlinks))
+SECONDARCH_SYMLINKS_TARGET:=$(SYMLINKS_TARGET) $(SYMLINKS_TARGET_VIDEO)
 SECONDARCH_INSTALL_DIR:=$(dir $(MESON_GEN_FILES_TARGET))/install
 endif
 

@@ -53,7 +53,7 @@ MESON_BUILD_ARGUMENTS := \
 	-Dgallium-va=$(BOARD_MESA3D_GALLIUM_VA)					    				 \
 	-Dvideo-codecs=$(subst $(space),$(comma),$(BOARD_MESA3D_VIDEO_CODECS))	 \
 	-Dxmlconfig=enabled															 \
-    $(BOARD_MESA3D_EXTRA_MESON_ARGS)
+    $(BOARD_MESA3D_MESON_ARGS)
 
 ifeq ($(shell test $(PLATFORM_SDK_VERSION) -ge 30; echo $$?), 0)
 MESA_LIBGBM_NAME := libgbm_mesa

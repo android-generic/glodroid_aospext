@@ -77,7 +77,7 @@ endif
 
 ifneq ($(filter true, $(BOARD_MESA3D_BUILD_LIBGBM)),)
 AOSPEXT_GEN_TARGETS += lib:$(MESA_LIBGBM_NAME).so::$(MESA_LIBGBM_NAME):
-AOSPEXT_GEN_TARGETS += lib:gbm/dri_gbm.so:gbm:dri_gbm:
+AOSPEXT_GEN_TARGETS += lib:gbm/dri_gbm.so::dri_gbm:
 endif
 
 ifneq ($(BOARD_MESA3D_GALLIUM_VA),)

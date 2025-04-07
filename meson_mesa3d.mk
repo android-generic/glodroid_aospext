@@ -37,6 +37,7 @@ MESA_VK_LIB_SUFFIX_broadcom := broadcom
 MESA_VK_LIB_SUFFIX_panfrost := panfrost
 MESA_VK_LIB_SUFFIX_virtio := virtio
 MESA_VK_LIB_SUFFIX_swrast := lvp
+MESA_VK_LIB_SUFFIX_gfxstream := gfxstream
 
 MESON_BUILD_ARGUMENTS := \
     -Dplatforms=android                                                          \
@@ -151,6 +152,10 @@ ifneq ($(BOARD_MESA3D_GALLIUM_VA),)
 LOCAL_SHARED_LIBRARIES += libva libva-android
 LOCAL_HEADER_LIBRARIES += libva_headers
 AOSPEXT_GEN_PKGCONFIGS += libva:1.22.0
+endif
+
+ifneq ($(filter gfxstream,$(BOARD_MESA3D_VULKAN_DRIVERS)),)
+LOCAL_HEADER_LIBRARIES += libgralloc_cb.ranchu minigbm_headers
 endif
 
 ifeq ($(shell test $(PLATFORM_SDK_VERSION) -ge 30; echo $$?), 0)

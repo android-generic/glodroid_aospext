@@ -123,6 +123,7 @@ ifneq ($(filter i915 r300,$(BOARD_MESA3D_GALLIUM_DRIVERS)),)
 MESON_GEN_LLVM_STUB := true
 endif
 
+ifneq ($(filter llvmpipe swrast,$(BOARD_MESA3D_GALLIUM_DRIVERS) $(BOARD_MESA3D_VULKAN_DRIVERS)),)
 ifeq ($(BOARD_MESA3D_FORCE_SOFTPIPE),)
 MESON_GEN_LLVM_STUB := true
 endif

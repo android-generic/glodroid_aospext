@@ -15,6 +15,25 @@ AOSPEXT_BUILD_SYSTEM := meson
 
 LIBDRM_VERSION = $(shell cat external/libdrm/meson.build | grep -o "\<version\>\s*:\s*'\w*\.\w*\.\w*'" | grep -o "\w*\.\w*\.\w*" | head -1)
 MESA3D_VERSION = $(shell cat $(BOARD_MESA3D_SRC_DIR)/VERSION | cut -d '.' -f 1-2)
+LLVM_VERSION_MAJOR = $(shell \
+    if [ -f external/llvm-project/cmake/Modules/LLVMVersion.cmake ]; then \
+        grep 'set.LLVM_VERSION_MAJOR ' external/llvm-project/cmake/Modules/LLVMVersion.cmake | grep -o '[0-9]\+'; \
+    else \
+        grep 'set.LLVM_VERSION_MAJOR ' external/llvm-project/llvm/CMakeLists.txt | grep -o '[0-9]\+'; \
+    fi)
+LLVM_VERSION_MINOR = $(shell \
+    if [ -f external/llvm-project/cmake/Modules/LLVMVersion.cmake ]; then \
+        grep 'set.LLVM_VERSION_MINOR ' external/llvm-project/cmake/Modules/LLVMVersion.cmake | grep -o '[0-9]\+'; \
+    else \
+        grep 'set.LLVM_VERSION_MINOR ' external/llvm-project/llvm/CMakeLists.txt | grep -o '[0-9]\+'; \
+    fi)
+LLVM_VERSION_PATCH = $(shell \
+    if [ -f external/llvm-project/cmake/Modules/LLVMVersion.cmake ]; then \
+        grep 'set.LLVM_VERSION_PATCH ' external/llvm-project/cmake/Modules/LLVMVersion.cmake | grep -o '[0-9]\+'; \
+    else \
+        grep 'set.LLVM_VERSION_PATCH ' external/llvm-project/llvm/CMakeLists.txt | grep -o '[0-9]\+'; \
+    fi)
+
 MESA3D_GALLIUM_LIBDIR :=
 MESA3D_POPULATE_DRI_SYMLINKS :=
 MESA3D_POPULATE_GVA_SYMLINKS :=
@@ -143,8 +162,8 @@ AOSPEXT_GEN_PKGCONFIGS += DirectX-Headers
 endif
 
 ifneq ($(MESON_GEN_LLVM_STUB),)
-MESON_LLVM_VERSION := 19.1.5
-LOCAL_SHARED_LIBRARIES += libLLVM19
+MESON_LLVM_VERSION := $(LLVM_VERSION_MAJOR).$(LLVM_VERSION_MINOR).$(LLVM_VERSION_PATCH)
+LOCAL_SHARED_LIBRARIES += libLLVM$(LLVM_VERSION_MAJOR)
 endif
 
 ifneq ($(BOARD_MESA3D_GALLIUM_VA),)

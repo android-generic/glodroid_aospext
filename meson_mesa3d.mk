@@ -167,9 +167,12 @@ LOCAL_SHARED_LIBRARIES += libLLVM$(LLVM_VERSION_MAJOR)
 endif
 
 ifneq ($(BOARD_MESA3D_GALLIUM_VA),)
+LIBVA_DIR := hardware/intel/common/libva
+LIBVA_VERSION_MAJOR := $(shell sed -n -e 's/va_api_major_version *= *//p' $(LIBVA_DIR)/meson.build)
+LIBVA_VERSION_MINOR := $(shell sed -n -e 's/va_api_minor_version *= *//p' $(LIBVA_DIR)/meson.build)
 LOCAL_SHARED_LIBRARIES += libva libva-android
 LOCAL_HEADER_LIBRARIES += libva_headers
-AOSPEXT_GEN_PKGCONFIGS += libva:1.22.0
+AOSPEXT_GEN_PKGCONFIGS += libva:$(LIBVA_VERSION_MAJOR).$(LIBVA_VERSION_MINOR)
 endif
 
 ifeq ($(shell test $(PLATFORM_SDK_VERSION) -ge 30; echo $$?), 0)

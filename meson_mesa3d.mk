@@ -171,7 +171,7 @@ LOCAL_SHARED_LIBRARIES += libLLVM$(LLVM_VERSION_MAJOR)
 endif
 
 ifneq ($(BOARD_MESA3D_GALLIUM_VA),)
-LIBVA_DIR := hardware/intel/common/libva
+LIBVA_DIR := hardware/intel/common/vaapi
 LIBVA_VERSION_MAJOR := $(shell sed -n -e 's/va_api_major_version *= *//p' $(LIBVA_DIR)/meson.build)
 LIBVA_VERSION_MINOR := $(shell sed -n -e 's/va_api_minor_version *= *//p' $(LIBVA_DIR)/meson.build)
 LOCAL_SHARED_LIBRARIES += libva libva-android
